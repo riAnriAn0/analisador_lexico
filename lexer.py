@@ -1,17 +1,10 @@
 """
 Uso:
     python lexer_aluno.py [arquivo]
-
-Ordem sugerida:
- [] TODOs 1-3  : primitivas do AFD
- [] TODOs 4-5  : construtores genéricos (literal, trie)
- [] TODOs 6-7  : construtores específicos (ID, NUM)
- [] TODOs 8-9  : motor do lexer
- [] Config     : palavras reservadas, operadores, símbolos, alfabeto
-
 """
 from __future__ import annotations
 from dataclasses import dataclass
+from pathlib import Path
 import sys
 
 
@@ -29,14 +22,11 @@ class Token:
     def __repr__(self) -> str:
         return f"<{self.tipo}, {self.valor!r}> @ {self.linha}:{self.coluna}"
 
-
 # =====================================================================
 # 2. AFD — tabela de transições
 # =====================================================================
 
 class AFD:
-    """AFD representado por tabela (estado, símbolo) -> estado."""
-
     def __init__(self, nome: str):
         self.nome = nome
         self.transicoes: dict[tuple[int, str], int] = {}
@@ -50,18 +40,13 @@ class AFD:
         return e
 
     def transicao(self, origem: int, simbolos: str, destino: int) -> None:
-        """TODO 1: para CADA caractere c em `simbolos`, registre
-        transicoes[(origem, c)] = destino."""
         for c in simbolos:
             self.transicoes[(origem, c)] = destino
 
     def marcar_final(self, estado: int) -> None:
-        """TODO 2: adicione `estado` a self.finais."""
         self.finais.add(estado)
 
     def maior_prefixo(self, texto: str) -> int:
-        """TODO 3: retorne o comprimento do MAIOR prefixo de `texto`
-        aceito pelo AFD, ou -1 se nenhum prefixo for aceito."""
         estado = self.inicial
         ultimo = 0 if estado in self.finais else -1
 
@@ -78,159 +63,143 @@ class AFD:
 
 # =====================================================================
 # 3. CONFIGURAÇÃO DA LINGUAGEM
-# ---------------------------------------------------------------------
-# Edite APENAS esta seção para adaptar o lexer à sua linguagem.
 # =====================================================================
 
-# --- Alfabeto de identificadores -----------------------------------
-LETRAS_ID       = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-INICIAIS_ID     = LETRAS_ID                      # 1º caractere
-CONTINUACAO_ID  = LETRAS_ID + "0123456789_"      # caracteres seguintes
+LETRAS_ID      = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+INICIAIS_ID    = "_"
+CONTINUACAO_ID = LETRAS_ID + "0123456789_"
 
-# --- Dígitos (para números) -----------------------------------------
 DIGITOS = "0123456789"
 
-# --- Palavras reservadas: lexema -> tipo ---------------------------
-# Reclassificadas a partir de tokens ID.
+# Palavras-chave alfanuméricas (reclassificadas a partir de ID)
 PALAVRAS_RESERVADAS: dict[str, str] = {
-    "if":   "IF",
+    "if": "IF",
     "else": "ELSE",
     "elseif": "ELSEIF",
-    "for":    "FOR",
-    "break": "BREACK",
+    "for": "FOR",
+    "break": "BREAK",
     "num": "NUM",
-    "str":"STR",
-    "bool":"BOOL",
-    "print":"PRINT",
-    "input":"INPUT",
-    "null":"NULL",
-    "void":"VOID",
-    "int":  "INT",
-    "func":  "FUNC",
+    "str": "STR",
+    "bool": "BOOL",
+    "print": "PRINT",
+    "input": "INPUT",
+    "null": "NULL",
+    "void": "VOID",
+    "int": "INT",
+    "func": "FUNC",
     "return": "RETURN",
-}
-
-# --- Operadores compostos: lexema -> tipo --------------------------
-# Todos reconhecidos por um único AFD-trie ("FIXO").
-OPERADORES: dict[str, str] = {
-    "==": "IGUAL",
-    "===": "EX_IGUAL",
-    "!=": "DIF",
-    "<=": "MENORIG",
-    ">=": "MAIORIG",
-    "=":  "ATRIB",
-    "<":  "MENOR",
-    ">":  "MAIOR",
     "and": "AND",
     "or": "OR",
     "not": "NOT",
+    "true": "TRUE",
+    "false": "FALSE",
 }
 
-# --- Símbolos simples (1 caractere): lexema -> tipo ----------------
+# Operadores de pontuação e símbolos compostos
+OPERADORES: dict[str, str] = {
+    "===": "EX_IGUAL",
+    "==": "IGUAL",
+    "=":  "ATRIB",
+    "!=": "DIF",
+    "<=": "MENORIG",
+    ">=": "MAIORIG",
+    "<":  "MENOR",
+    ">":  "MAIOR",
+}
+
+# Símbolos simples (1 caractere)
 SIMBOLOS: dict[str, str] = {
-    "(": "PF",
-    ")": "PA",
+    "(": "PA",
+    ")": "PF",
     "{": "CHA",
     "}": "CHF",
     ";": "PV",
     ":": "DP",
+    ".": "P",
     "[": "COA",
     "]": "COF",
+    "+": "ADD_OP",
+    "-": "SUB_OP",
+    "/": "DIV_OP",
+    "*": "MULT_OP",
+    "%": "MOD_OP",
 }
 
-# Tabela combinada (operadores + símbolos). Usada no trie e na
-# reclassificação. Não precisa editar.
-FIXOS: dict[str, str] = {**OPERADORES, **SIMBOLOS}
+FIXOS: dict[str, str] = {**PALAVRAS_RESERVADAS,**OPERADORES, **SIMBOLOS}
 
 
 # =====================================================================
 # 4. CONSTRUTORES GENÉRICOS DE AFDs
-# ---------------------------------------------------------------------
-# Estes dois construtores bastam para reconhecer QUALQUER conjunto
-# finito de lexemas fixos (operadores, palavras-chave, símbolos).
 # =====================================================================
+
+def afd_string() -> AFD:
+    afd = AFD("TEXT")
+    q1 = afd.novo_estado()
+    q2 = afd.novo_estado()
+    afd.transicao(afd.inicial, '"', q1)
+
+    caracteres = "".join(chr(i) for i in range(32, 127) if chr(i) != '"')
+    
+    afd.transicao(q1, caracteres, q1)
+    afd.transicao(q1, '"', q2)
+    afd.marcar_final(q2)
+    return afd
 
 
 def afd_literal(nome: str, texto: str) -> AFD:
-    """Constrói AFD que reconhece EXATAMENTE a string `texto`.
-
-    Ex.: afd_literal("PV", ";")
-         afd_literal("OP_EQ", "==")
-
-    Dica: crie um estado para cada prefixo de `texto`.
-    O estado correspondente ao texto completo é o único final.
-    """
     afd = AFD(nome)
-    # TODO 4:
-    #   atual = afd.inicial
-    #   for c in texto:
-    #       prox = afd.novo_estado()
-    #       afd.transicao(atual, c, prox)
-    #       atual = prox
-    #   afd.marcar_final(atual)
+    atual = afd.inicial
+    for c in texto:
+        prox = afd.novo_estado()
+        afd.transicao(atual, c, prox)
+        atual = prox
+    afd.marcar_final(atual)
     return afd
 
 
 def afd_conjunto_literais(nome: str, textos: list[str]) -> AFD:
-    """Constrói AFD que reconhece QUALQUER uma das strings.
-
-    Ex.: afd_conjunto_literais("FIXO", ["==", "!=", "<=", ">=", "=", "<", ">"])
-
-    Compartilha estados para prefixos comuns (ex.: "==" e "="
-    compartilham o primeiro estado). A classificação fina é feita
-    depois, olhando o valor reconhecido.
-    """
     afd = AFD(nome)
-    # TODO 5: para cada texto, desça no trie a partir de afd.inicial;
-    #         crie estados quando não houver transição; marque o nó
-    #         final de cada texto.
-    #   for texto in textos:
-    #       atual = afd.inicial
-    #       for c in texto:
-    #           prox = afd.transicoes.get((atual, c))
-    #           if prox is None:
-    #               prox = afd.novo_estado()
-    #               afd.transicao(atual, c, prox)
-    #           atual = prox
-    #       afd.marcar_final(atual)
+    for texto in textos:
+        atual = afd.inicial
+        for c in texto:
+            prox = afd.transicoes.get((atual, c))
+            if prox is None:
+                prox = afd.novo_estado()
+                afd.transicao(atual, c, prox)
+            atual = prox
+        afd.marcar_final(atual)
     return afd
 
 
 # =====================================================================
 # 5. CONSTRUTORES ESPECÍFICOS — ID e NUM
-# ---------------------------------------------------------------------
-# Ajuste estes conforme a forma dos tokens da SUA linguagem.
 # =====================================================================
 
-
 def afd_identificador() -> AFD:
-    """[INICIAIS_ID][CONTINUACAO_ID]* -> tipo ID.
-
-    Usa as constantes da CONFIGURAÇÃO. Para permitir, por exemplo,
-    `$` no meio de identificadores, basta editar CONTINUACAO_ID.
-    """
     afd = AFD("ID")
-    # TODO 6:
-    #   q1 = afd.novo_estado()
-    #   afd.transicao(afd.inicial, INICIAIS_ID, q1)
-    #   afd.transicao(q1, CONTINUACAO_ID, q1)
-    #   afd.marcar_final(q1)
+    q1 = afd.novo_estado()
+    afd.transicao(afd.inicial, INICIAIS_ID, q1)
+    afd.transicao(q1, CONTINUACAO_ID, q1)
+    afd.marcar_final(q1)
     return afd
 
 
 def afd_numero() -> AFD:
-    """[DIGITOS]+ -> tipo NUM.
-
-    Para aceitar floats, adicione estados e transições para '.'
-    (ex.: 12.5) e para expoente 'e'/'E'.
-    Para hexadecimal, aceite o prefixo '0x' e A-F em DIGITOS.
-    """
     afd = AFD("NUM")
-    # TODO 7:
-    #   q1 = afd.novo_estado()
-    #   afd.transicao(afd.inicial, DIGITOS, q1)
-    #   afd.transicao(q1, DIGITOS, q1)
-    #   afd.marcar_final(q1)
+    q1 = afd.novo_estado()
+    q2 = afd.novo_estado()
+    q3 = afd.novo_estado()
+    
+    afd.transicao(afd.inicial, DIGITOS, q1)
+    afd.transicao(q1, DIGITOS, q1)
+    afd.marcar_final(q1)
+    
+    afd.transicao(q1, ".", q2)
+
+    afd.transicao(q2, DIGITOS, q3)
+    afd.transicao(q3, DIGITOS, q3)
+    afd.marcar_final(q3)
+    
     return afd
 
 
@@ -258,28 +227,24 @@ class Lexer:
             self.pos += 1
 
     def _reclassificar(self, tipo: str, valor: str) -> str:
-        """Refina o tipo bruto usando a CONFIGURAÇÃO:
-          - ID   -> palavra reservada, se aplicável
-          - FIXO -> operador ou símbolo específico
-        """
-        # TODO 8:
-        #   if tipo == "ID" and valor in PALAVRAS_RESERVADAS:
-        #       return PALAVRAS_RESERVADAS[valor]
-        #   if tipo == "FIXO":
-        #       return FIXOS[valor]           # sempre existe
+        if tipo == "ID" and valor in PALAVRAS_RESERVADAS:
+            return PALAVRAS_RESERVADAS[valor]
+        if tipo == "FIXO":
+            return FIXOS[valor]
         return tipo
 
     def proximo_token(self) -> Token | None:
-        # 1) pular espaços em branco
+        # 1) Ignorar espaços em branco
         while self.pos < len(self.entrada) and self.entrada[self.pos] in " \t\r\n":
             self._avancar(1)
+            
         if self.pos >= len(self.entrada):
             return None
 
         linha, coluna = self.linha, self.coluna
         resto = self.entrada[self.pos:]
 
-        # 2) processa o máximo de caracteres
+        # 2) Maximal Munch: encontra o maior casamento entre as regras
         melhor_tipo: str | None = None
         melhor_tam = 0
         for tipo, afd in self.regras:
@@ -288,7 +253,7 @@ class Lexer:
                 melhor_tam = tam
                 melhor_tipo = tipo
 
-        if melhor_tam == 0:
+        if melhor_tam <= 0 or melhor_tipo is None:
             raise SyntaxError(
                 f"Caractere inesperado {resto[0]!r} em L{linha}:C{coluna}"
             )
@@ -296,14 +261,18 @@ class Lexer:
         valor = resto[:melhor_tam]
         self._avancar(melhor_tam)
 
-        # 3) reclassificação
-        melhor_tipo = self._reclassificar(melhor_tipo, valor)
+        # 3) Reclassificação
+        tipo_final = self._reclassificar(melhor_tipo, valor)
 
-        return Token(melhor_tipo, valor, linha, coluna)
+        return Token(tipo_final, valor, linha, coluna)
 
     def tokenizar(self) -> list[Token]:
-        """TODO 9: laço trivial chamando proximo_token()."""
         tokens: list[Token] = []
+        while True:
+            token = self.proximo_token()
+            if token is None:
+                break
+            tokens.append(token)
         return tokens
 
 
@@ -312,30 +281,41 @@ class Lexer:
 # =====================================================================
 
 def construir_regras() -> list[tuple[str, AFD]]:
-    """Monta a lista de regras a partir da CONFIGURAÇÃO.
-    Se você adicionar novos tipos de token (ex.: floats), acrescente
-    aqui uma entrada para o AFD correspondente.
-    """
     return [
-        ("ID",   afd_identificador()),
         ("NUM",  afd_numero()),
+        ("ID",   afd_identificador()),
         ("FIXO", afd_conjunto_literais("FIXO", sorted(FIXOS))),
+        ("TEXT", afd_string()),
     ]
+
+def formatar_tabela(tokens: list[Token]) -> str:
+    linhas = [
+        f"{'TEXTO':<20} {'TOKEN':<15}",
+        "-" * 24 ,
+    ]
+    for tok in tokens:
+        linhas.append(f"{tok.valor:<20} {tok.tipo:<15}")
+    return "\n".join(linhas) + "\n"
 
 
 def main() -> None:
+    arquivo_saida = "tabela_sainda.txt"
+
     if len(sys.argv) > 1:
-        with open(sys.argv[1], "r", encoding="utf-8") as f:
+        caminho_entrada = sys.argv[1]
+        with open(caminho_entrada, "r", encoding="utf-8") as f:
             codigo = f.read()
+            arquivo_saida = f"{Path(caminho_entrada).stem}_tokens.txt"
     else:
-        codigo = ""
+        codigo = ("int _val= 0; if(true and true){ return 1.2;}else{return 0;}")
 
     tokens = Lexer(codigo, construir_regras()).tokenizar()
+    tabela = formatar_tabela(tokens)
 
-    print(f"{'TEXTO':<12} {'TOKEN':<10}")
-    print("-" * 22)
-    for tok in tokens:
-        print(f"{tok.valor:<12} {tok.tipo:<10}")
+    print(tabela)
+
+    with open(arquivo_saida, "w", encoding="utf-8") as f:
+        f.write(tabela)
 
 
 if __name__ == "__main__":
