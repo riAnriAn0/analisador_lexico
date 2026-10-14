@@ -74,13 +74,11 @@ DIGITOS = "0123456789"
 # Palavras-chave alfanuméricas (reclassificadas a partir de ID)
 PALAVRAS_RESERVADAS: dict[str, str] = {
     "if": "IF",
-    "else": "ELSE",
-    "elseif": "ELSEIF",
-    "for": "FOR",
+    "while": "WHILE",
     "break": "BREAK",
-    "num": "NUM",
-    "str": "STR",
-    "bool": "BOOL",
+    "num": "T_NUM",
+    "str": "T_STR",
+    "bool": "T_BOOL",
     "print": "PRINT",
     "input": "INPUT",
     "null": "NULL",
@@ -97,7 +95,6 @@ PALAVRAS_RESERVADAS: dict[str, str] = {
 
 # Operadores de pontuação e símbolos compostos
 OPERADORES: dict[str, str] = {
-    "===": "EX_IGUAL",
     "==": "IGUAL",
     "=":  "ATRIB",
     "!=": "DIF",
@@ -116,6 +113,7 @@ SIMBOLOS: dict[str, str] = {
     ";": "PV",
     ":": "DP",
     ".": "P",
+    ",": "V",
     "[": "COA",
     "]": "COF",
     "+": "ADD_OP",
@@ -185,20 +183,12 @@ def afd_identificador() -> AFD:
 
 
 def afd_numero() -> AFD:
-    afd = AFD("NUM")
+    afd = AFD("INT")
     q1 = afd.novo_estado()
-    q2 = afd.novo_estado()
-    q3 = afd.novo_estado()
     
     afd.transicao(afd.inicial, DIGITOS, q1)
     afd.transicao(q1, DIGITOS, q1)
     afd.marcar_final(q1)
-    
-    afd.transicao(q1, ".", q2)
-
-    afd.transicao(q2, DIGITOS, q3)
-    afd.transicao(q3, DIGITOS, q3)
-    afd.marcar_final(q3)
     
     return afd
 
@@ -282,7 +272,7 @@ class Lexer:
 
 def construir_regras() -> list[tuple[str, AFD]]:
     return [
-        ("NUM",  afd_numero()),
+        ("INTj",  afd_numero()),
         ("ID",   afd_identificador()),
         ("FIXO", afd_conjunto_literais("FIXO", sorted(FIXOS))),
         ("TEXT", afd_string()),
