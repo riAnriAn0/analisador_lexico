@@ -1,7 +1,3 @@
-"""
-Uso:
-    python lexer_aluno.py [arquivo]
-"""
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
@@ -111,8 +107,8 @@ SIMBOLOS: dict[str, str] = {
     "{": "CHA",
     "}": "CHF",
     ";": "PV",
-    ":": "DP",
-    ".": "P",
+    # ":": "DP",  REMOVIDOS POR FALTE DE UTILIZAÇÃO NA LINGUAGEM
+    # ".": "P",
     ",": "V",
     "[": "COA",
     "]": "COF",
