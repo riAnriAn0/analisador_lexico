@@ -71,14 +71,12 @@ DIGITOS = "0123456789"
 PALAVRAS_RESERVADAS: dict[str, str] = {
     "if": "IF",
     "while": "WHILE",
-    "break": "BREAK",
     "num": "T_NUM",
     "str": "T_STR",
     "bool": "T_BOOL",
     "print": "PRINT",
     "input": "INPUT",
     "void": "VOID",
-    "int": "INT",
     "func": "FUNC",
     "return": "RETURN",
     "and": "AND",
@@ -109,8 +107,6 @@ SIMBOLOS: dict[str, str] = {
     # ":": "DP",  REMOVIDOS POR FALTE DE UTILIZAÇÃO NA LINGUAGEM
     # ".": "P",
     ",": "V",
-    "[": "COA",
-    "]": "COF",
     "+": "ADD_OP",
     "-": "SUB_OP",
     "/": "DIV_OP",

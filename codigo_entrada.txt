@@ -13,5 +13,5 @@ bool func _validacao(){
 }
 
 while(_i>4){
-    bool _val = _validacao;
-}
+    bool _val = _validacao();
+}   
