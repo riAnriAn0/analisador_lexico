@@ -77,7 +77,6 @@ PALAVRAS_RESERVADAS: dict[str, str] = {
     "bool": "T_BOOL",
     "print": "PRINT",
     "input": "INPUT",
-    "null": "NULL",
     "void": "VOID",
     "int": "INT",
     "func": "FUNC",
@@ -268,10 +267,10 @@ class Lexer:
 
 def construir_regras() -> list[tuple[str, AFD]]:
     return [
-        ("INTj",  afd_numero()),
-        ("ID",   afd_identificador()),
         ("FIXO", afd_conjunto_literais("FIXO", sorted(FIXOS))),
         ("TEXT", afd_string()),
+        ("INT",  afd_numero()),
+        ("ID",   afd_identificador()),
     ]
 
 def formatar_tabela(tokens: list[Token]) -> str:
