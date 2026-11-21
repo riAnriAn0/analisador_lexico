@@ -2,6 +2,7 @@ TEXTO                TOKEN
 ------------------------
 num                  T_NUM          
 _i                   ID             
+;                    PV             
 =                    ATRIB          
 0                    INT            
 ;                    PV             

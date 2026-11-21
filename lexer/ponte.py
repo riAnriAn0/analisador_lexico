@@ -1,8 +1,7 @@
 from antlr4.Token import Token, CommonToken
 from antlr4.CommonTokenFactory import CommonTokenFactory
 
-from BC546Parser import BC546Parser
-
+from antlr.BC546Parser import BC546Parser
 
 class ListaTokenSource:
     def __init__(self, tokens: list[CommonToken], nome: str = "tokens"):

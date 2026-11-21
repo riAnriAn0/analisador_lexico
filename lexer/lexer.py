@@ -105,7 +105,7 @@ SIMBOLOS: dict[str, str] = {
     "}": "CHF",
     ";": "PV",
     # ":": "DP",  REMOVIDOS POR FALTE DE UTILIZAÇÃO NA LINGUAGEM
-    # ".": "P",
+    # ".": "P", REMOVIDOS POR FALTE DE UTILIZAÇÃO NA LINGUAGEM
     ",": "V",
     "+": "ADD_OP",
     "-": "SUB_OP",
@@ -291,6 +291,7 @@ def main() -> None:
         codigo = ("int _val= 0; if(true and true){ return 1.2;}else{return 0;}")
 
     tokens = Lexer(codigo, construir_regras()).tokenizar()
+    print(tokens)
     tabela = formatar_tabela(tokens)
 
     print(tabela)

@@ -25,24 +25,44 @@ statement
     | bloco
     ;
 
-bloco      : CHA statement* CHF ;
+// bloco de coódigo
+bloco : CHA statement* CHF ;
+
+// print
 print : PRINT PA expr PF ;
+
+// input
 input : INPUT PA expr PF;
 
+// tipos de variaveis
 tipo       : T_STR | T_NUM | T_BOOL ;
+
+// tipos de retorno
 tipoRet    : tipo | VOID ;
 
+// delclaração de variaveis
 varDecl    : tipo ID (ATRIB expr)? ;
+
+// atribuição
 atrib      : ID ATRIB expr ;
 
+// declaração de função
 funcDecl   : tipoRet FUNC ID PA params? PF bloco ;
+
+// parametros de função
 params     : param (V param)* ;
 param      : tipo ID ;
+
+// retorno de função
 return : RETURN expr? ;
 
+// condicional if
 if     : IF PA expr PF statement ;
+
+// repetição while
 while  : WHILE PA expr PF statement ;
 
+// expreções algebrigas / logicas
 expr    : exprOr ;
 exprOr  : exprAnd (OR exprAnd)* ;
 exprAnd : exprNot (AND exprNot)* ;
@@ -51,6 +71,10 @@ exprRel : exprArt ((IGUAL | DIF | MAIORIG | MENORIG | MENOR | MAIOR) exprArt)? ;
 exprArt : termo ((ADD_OP | SUB_OP) termo)* ;
 termo   : fator ((MULT_OP | DIV_OP | MOD_OP) fator)* ;
 
+// chamada de função
+chFun : ID PA (expr (V expr)*)? PF ;
+
+// fatores
 fator
     : INT
     | TEXT
@@ -62,5 +86,4 @@ fator
     | PA expr PF
     ;
 
-chFun : ID PA (expr (V expr)*)? PF ;
 
