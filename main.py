@@ -20,7 +20,6 @@ def main():
     parser.removeErrorListeners()
     parser.addErrorListener(ErroSintatico())
     arvore = parser.program()
-    print(arvore.toStringTree(recog=parser))
     if parser.getNumberOfSyntaxErrors() == 0:
         analisador = AnalisadorSemantico()
         analisador.visit(arvore)

@@ -1,18 +1,18 @@
-num _i = 0;
+num _x = 10;
+num _x = 20;
+num _auto = _auto + 1;
 
-if(_i >= 2){
-    print(_valor)
-    print("i maior igual a 2");
+_y = 50;
+
+num func _somar(num _a, num _b) {
+    num _a = 99;
+    if (_a > 0) {
+        bool _interna = true;
+        print(_interna);
+    }
+    print(_interna);
+    return _a + _b;
 }
 
-if (_i<2){
-    print("i menor que 2");
-}
-
-bool func _validacao(){
-    return 1 > 6;
-}
-
-while(_i>4){
-    bool _val = _validacao();
-}   
+num _res = _funcaoInexistente(10);
+print(_a);

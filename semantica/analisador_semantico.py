@@ -22,59 +22,57 @@ class AnalisadorSemantico(BC546ParserVisitor):
         return None
 
     def visitFuncDecl(self, ctx: BC546Parser.FuncDeclContext):
-        if hasattr(ctx, "ID") and ctx.ID():
-            no_id = ctx.ID()
-            tipo_ret = ctx.tipoRet().getText() if hasattr(ctx, "tipoRet") and ctx.tipoRet() else "void"
-            self.ts.declarar(no_id.getText(), tipo_ret, no_id.getSymbol().line)
+        no_id = ctx.ID()
+        tipo_ret = ctx.tipoRet().getText()
+        self.ts.declarar(no_id.getText(), tipo_ret, no_id.getSymbol().line)
         self.ts.entrar_escopo()
         self._escopo_funcao_aberto = True
-        if hasattr(ctx, "params") and ctx.params():
+        if ctx.params():
             self.visit(ctx.params())
-        if hasattr(ctx, "bloco") and ctx.bloco():
-            self.visit(ctx.bloco())
+        self.visit(ctx.bloco())
+        self._escopo_funcao_aberto = False
         self.ts.sair_escopo()
         return None
 
     def visitParam(self, ctx: BC546Parser.ParamContext):
-        if hasattr(ctx, "ID") and ctx.ID() and hasattr(ctx, "tipo") and ctx.tipo():
-            no_id = ctx.ID()
-            tipo = ctx.tipo().getText()
-            self.ts.declarar(no_id.getText(), tipo, no_id.getSymbol().line)
-        return self.visitChildren(ctx)
+        no_id = ctx.ID()
+        tipo = ctx.tipo().getText()
+        self.ts.declarar(no_id.getText(), tipo, no_id.getSymbol().line)
+        return None
 
     def visitVarDecl(self, ctx: BC546Parser.VarDeclContext):
-        if hasattr(ctx, "expr") and ctx.expr():
-            expressoes = ctx.expr() if isinstance(ctx.expr(), list) else [ctx.expr()]
-            for expressao in expressoes:
-                self.visit(expressao)
-        if hasattr(ctx, "ID") and ctx.ID() and hasattr(ctx, "tipo") and ctx.tipo():
-            tipo = ctx.tipo().getText()
-            ids = ctx.ID() if isinstance(ctx.ID(), list) else [ctx.ID()]
-            for no_id in ids:
-                self.ts.declarar(no_id.getText(), tipo, no_id.getSymbol().line)
+        self.visit(ctx.expr())
+        no_id = ctx.ID()
+        tipo = ctx.tipo().getText()
+        self.ts.declarar(no_id.getText(), tipo, no_id.getSymbol().line)
         return None
 
     def visitAtrib(self, ctx: BC546Parser.AtribContext):
-        if hasattr(ctx, "ID") and ctx.ID():
-            no_id = ctx.ID()
-            self.ts.verificar_uso(no_id.getText(), no_id.getSymbol().line)
-        return self.visitChildren(ctx)
+        no_id = ctx.ID()
+        self.ts.verificar_uso(no_id.getText(), no_id.getSymbol().line)
+        self.visit(ctx.expr())
+        return None
+
+    def visitIf(self, ctx: BC546Parser.IfContext):
+        self.visit(ctx.expr())
+        self.visit(ctx.bloco())
+        return None
+
+    def visitWhile(self, ctx: BC546Parser.WhileContext):
+        self.visit(ctx.expr())
+        self.visit(ctx.bloco())
+        return None
 
     def visitInput(self, ctx: BC546Parser.InputContext):
-        if hasattr(ctx, "ID") and ctx.ID():
-            ids = ctx.ID() if isinstance(ctx.ID(), list) else [ctx.ID()]
-            for no_id in ids:
-                self.ts.verificar_uso(no_id.getText(), no_id.getSymbol().line)
         return self.visitChildren(ctx)
 
     def visitFator(self, ctx: BC546Parser.FatorContext):
-        if hasattr(ctx, "ID") and ctx.ID():
+        if ctx.ID():
             no_id = ctx.ID()
             self.ts.verificar_uso(no_id.getText(), no_id.getSymbol().line)
         return self.visitChildren(ctx)
 
     def visitChFun(self, ctx: BC546Parser.ChFunContext):
-        if hasattr(ctx, "ID") and ctx.ID():
-            no_id = ctx.ID()
-            self.ts.verificar_uso(no_id.getText(), no_id.getSymbol().line)
+        no_id = ctx.ID()
+        self.ts.verificar_uso(no_id.getText(), no_id.getSymbol().line)
         return self.visitChildren(ctx)

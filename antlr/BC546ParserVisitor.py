@@ -119,13 +119,13 @@ class BC546ParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by BC546Parser#fator.
-    def visitFator(self, ctx:BC546Parser.FatorContext):
+    # Visit a parse tree produced by BC546Parser#chFun.
+    def visitChFun(self, ctx:BC546Parser.ChFunContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by BC546Parser#chFun.
-    def visitChFun(self, ctx:BC546Parser.ChFunContext):
+    # Visit a parse tree produced by BC546Parser#fator.
+    def visitFator(self, ctx:BC546Parser.FatorContext):
         return self.visitChildren(ctx)
 
 

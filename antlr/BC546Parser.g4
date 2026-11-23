@@ -41,7 +41,7 @@ tipo       : T_STR | T_NUM | T_BOOL ;
 tipoRet    : tipo | VOID ;
 
 // delclaração de variaveis
-varDecl    : tipo ID (ATRIB expr)? ;
+varDecl    : tipo ID ATRIB expr;
 
 // atribuição
 atrib      : ID ATRIB expr ;
@@ -57,10 +57,10 @@ param      : tipo ID ;
 return : RETURN expr? ;
 
 // condicional if
-if     : IF PA expr PF statement ;
+if     : IF PA expr PF bloco ;
 
 // repetição while
-while  : WHILE PA expr PF statement ;
+while  : WHILE PA expr PF bloco ;
 
 // expreções algebrigas / logicas
 expr    : exprOr ;

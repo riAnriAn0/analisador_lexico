@@ -206,21 +206,21 @@ class BC546ParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by BC546Parser#fator.
-    def enterFator(self, ctx:BC546Parser.FatorContext):
-        pass
-
-    # Exit a parse tree produced by BC546Parser#fator.
-    def exitFator(self, ctx:BC546Parser.FatorContext):
-        pass
-
-
     # Enter a parse tree produced by BC546Parser#chFun.
     def enterChFun(self, ctx:BC546Parser.ChFunContext):
         pass
 
     # Exit a parse tree produced by BC546Parser#chFun.
     def exitChFun(self, ctx:BC546Parser.ChFunContext):
+        pass
+
+
+    # Enter a parse tree produced by BC546Parser#fator.
+    def enterFator(self, ctx:BC546Parser.FatorContext):
+        pass
+
+    # Exit a parse tree produced by BC546Parser#fator.
+    def exitFator(self, ctx:BC546Parser.FatorContext):
         pass
 
 
