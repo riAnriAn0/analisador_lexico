@@ -13,6 +13,7 @@ class ErroSintatico(ErrorListener):
 def main():
     with open(sys.argv[1], encoding="utf-8") as f:
         codigo = f.read()
+        
     meus_tokens = Lexer(codigo, construir_regras()).tokenizar()
     fonte = ListaTokenSource(converter(meus_tokens), sys.argv[1])
     stream = CommonTokenStream(fonte)
@@ -20,6 +21,7 @@ def main():
     parser.removeErrorListeners()
     parser.addErrorListener(ErroSintatico())
     arvore = parser.program()
+    
     if parser.getNumberOfSyntaxErrors() == 0:
         analisador = AnalisadorSemantico()
         analisador.visit(arvore)

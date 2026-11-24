@@ -293,7 +293,6 @@ def main() -> None:
     tokens = Lexer(codigo, construir_regras()).tokenizar()
     print(tokens)
     tabela = formatar_tabela(tokens)
-
     print(tabela)
 
     with open(arquivo_saida, "w", encoding="utf-8") as f:

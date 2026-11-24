@@ -1,18 +1,29 @@
-num _x = 10;
-num _x = 20;
-num _auto = _auto + 1;
+num _contador = 0;
+str _titulo = "Inicio do programa";
+bool _ativo = true;
 
-_y = 50;
-
-num func _somar(num _a, num _b) {
-    num _a = 99;
-    if (_a > 0) {
-        bool _interna = true;
-        print(_interna);
+num func _calcular(num _a, num _b) {
+    num _contador = (_a + _b) * 2;
+    if (_contador >= 10) {
+        num _bonus = 5;
+        _contador = _contador + _bonus;
     }
-    print(_interna);
-    return _a + _b;
+    return _contador;
 }
 
-num _res = _funcaoInexistente(10);
-print(_a);
+void func _exibirStatus(str _msg) {
+    print(_msg);
+    return;
+}
+
+_exibirStatus(_titulo);
+
+while (_contador < 3) {
+    num _resultado = _calcular(_contador, true);
+    print(_resultado);
+    _contador = _contador + 1;
+}
+
+if (_ativo == true) {
+    print("Fim da execucao");
+}
